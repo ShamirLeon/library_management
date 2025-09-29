@@ -3,9 +3,6 @@ Sistema de Gestión de Biblioteca
 
 Este módulo principal contiene la interfaz de usuario para el sistema de gestión de biblioteca.
 Permite a los usuarios autenticarse y realizar operaciones CRUD sobre usuarios, libros y movimientos.
-
-Autor: [Tu nombre]
-Fecha: [Fecha actual]
 """
 
 from services.users_service import UsersService
