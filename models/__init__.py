@@ -9,9 +9,6 @@ Modelos incluidos:
 - User: Representa un usuario del sistema
 - Book: Representa un libro en el catálogo
 - Movement: Representa un préstamo o devolución
-
-Autor: [Tu nombre]
-Fecha: [Fecha actual]
 """
 
 from .users import User

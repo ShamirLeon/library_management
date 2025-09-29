@@ -4,9 +4,6 @@ Servicio de gestión de movimientos (préstamos y devoluciones).
 Este módulo contiene la lógica de negocio para la gestión de préstamos
 y devoluciones de libros en la biblioteca, incluyendo validaciones
 y control de inventario automático.
-
-Autor: [Tu nombre]
-Fecha: [Fecha actual]
 """
 
 from models.movements import Movement
@@ -74,12 +71,12 @@ class MovementsService():
         
         movement = Movement(id, book_id, student_name, student_identification, dt.today().date(), return_date, False, dt.today().date(), dt.today().date())
         if movement:
-           uptaded_book = self.books_service.decrement_quantity(book_id)
-           if uptaded_book:
-               print(f"New stock of book {book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
-           else:
-               print(f"Failed to decrement quantity of book {book_id}")
-               return None
+            uptaded_book = self.books_service.decrement_quantity(book_id)
+            if uptaded_book:
+                print(f"New stock of book {book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
+            else:
+                print(f"Failed to decrement quantity of book {book_id}")
+                return None
         self.movements.append(movement)
         return movement
     

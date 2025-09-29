@@ -2,6 +2,13 @@
 
 Un sistema completo de gestión de biblioteca desarrollado en Python que permite administrar usuarios, libros y préstamos de manera eficiente.
 
+# Integrantes del equipo
+
+- Shamir León
+- Carlos Rodríguez
+
+# Estructuras de datos (William Ruiz)
+
 ## 🚀 Características Principales
 
 ### 👥 **Gestión de Usuarios**
@@ -45,43 +52,6 @@ Un sistema completo de gestión de biblioteca desarrollado en Python que permite
     ├── 📄 users_service.py   # Servicio de gestión de usuarios
     ├── 📄 books_service.py   # Servicio de gestión de libros
     └── 📄 movements_service.py # Servicio de gestión de préstamos
-```
-
-### **Patrón de Diseño**
-- **Modelo-Vista-Controlador (MVC)**: Separación clara entre datos, lógica y presentación
-- **Servicios de Negocio**: Lógica encapsulada en servicios especializados
-- **Validaciones Robustas**: Verificación de datos en múltiples capas
-
-## 🛠️ Requisitos del Sistema
-
-### **Requisitos Mínimos**
-- **Python**: 3.7 o superior
-- **Sistema Operativo**: Windows, macOS, o Linux
-- **Memoria RAM**: Mínimo 512 MB
-- **Espacio en Disco**: 50 MB
-
-### **Dependencias**
-El proyecto utiliza únicamente librerías estándar de Python:
-- `datetime` - Para manejo de fechas
-- `input()` - Para entrada de usuario (interfaz de consola)
-
-## 🚀 Instalación y Configuración
-
-### **1. Clonar el Repositorio**
-```bash
-git clone <url-del-repositorio>
-cd library_management
-```
-
-### **2. Verificar Python**
-```bash
-python --version
-# Debe mostrar Python 3.7 o superior
-```
-
-### **3. Ejecutar el Sistema**
-```bash
-python main.py
 ```
 
 ## 🎮 Guía de Uso
@@ -131,7 +101,7 @@ El sistema incluye 3 libros predeterminados:
 | 2 | Book 2 | Author 2 | 1234567890 | 10 |
 | 3 | Book 3 | Author 3 | 1234567890 | 10 |
 
-### **🧪 Casos de Prueba Sugeridos**
+### **🧪 Casos de Prueba**
 
 1. **Prueba de Autenticación**:
    - Login con credenciales válidas
@@ -168,32 +138,3 @@ El sistema incluye 3 libros predeterminados:
 - 💾 **En Memoria**: Los datos se mantienen durante la ejecución
 - 🔄 **Reinicio**: Los datos se resetean al reiniciar la aplicación
 - 📊 **Estado**: Información de auditoría (fechas de creación/actualización)
-
-## 🐛 Solución de Problemas
-
-### **Error: "Python no reconocido"**
-```bash
-# Windows
-python --version
-# Si no funciona, intenta:
-py --version
-
-# Linux/macOS
-python3 --version
-```
-
-### **Error de Importación**
-```bash
-# Asegúrate de estar en el directorio correcto
-cd /ruta/al/proyecto/library_management
-python main.py
-```
-
-### **Error de Permisos**
-```bash
-# En Linux/macOS, si es necesario:
-chmod +x main.py
-```
----
-
-**¡Disfruta usando el Sistema de Gestión de Biblioteca! 📚✨**

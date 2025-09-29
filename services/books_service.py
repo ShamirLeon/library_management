@@ -3,9 +3,6 @@ Servicio de gestión de libros.
 
 Este módulo contiene la lógica de negocio para la gestión del catálogo
 de libros de la biblioteca, incluyendo operaciones CRUD y control de inventario.
-
-Autor: [Tu nombre]
-Fecha: [Fecha actual]
 """
 
 from models.books import Book
