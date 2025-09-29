@@ -3,9 +3,6 @@ Servicio de gestión de usuarios.
 
 Este módulo contiene la lógica de negocio para la gestión de usuarios
 del sistema de biblioteca, incluyendo operaciones CRUD y autenticación.
-
-Autor: [Tu nombre]
-Fecha: [Fecha actual]
 """
 
 from datetime import datetime as dt
