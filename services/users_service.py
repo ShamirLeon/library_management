@@ -50,12 +50,12 @@ class UsersService():
         id = len(self.users) + 1
         if len(password) < 6:
             print('    ')
-            print("❌❌❌ Password must be at least 6 characters long ❌❌❌")
+            print("❌❌❌ La contraseña debe tener al menos 6 caracteres ❌❌❌")
             print('    ')
             return None
         if email.count("@") != 1:
             print('    ')
-            print("❌❌❌ Invalid email ❌❌❌")
+            print("❌❌❌ Email inválido ❌❌❌")
             print('    ')
             return None
         
@@ -82,7 +82,7 @@ class UsersService():
         Returns:
             User or None: El objeto usuario eliminado si fue encontrado, None si no existe.
         """
-        print(f"Deleting user {id}...")
+        print(f"Eliminando usuario {id}...")
         for user in self.users:
             if user.id == id:
                 self.users.remove(user)

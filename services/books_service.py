@@ -33,31 +33,31 @@ class BooksService:
         self.books = [
             Book(
                 1,
-                "Book 1",
-                "Author 1",
-                "2021-01-01",
-                "1234567890",
-                3,
+                "Cien años de soledad",
+                "Gabriel García Márquez",
+                "1967-05-30",
+                "9780307474728",
+                5,
                 dt.today().date(),
                 dt.today().date(),
             ),
             Book(
                 2,
-                "Book 2",
-                "Author 2",
-                "2021-01-01",
-                "1234567890",
-                10,
+                "1984",
+                "George Orwell",
+                "1949-06-08",
+                "9780451524935",
+                4,
                 dt.today().date(),
                 dt.today().date(),
             ),
             Book(
                 3,
-                "Book 3",
-                "Author 3",
-                "2021-01-01",
-                "1234567890",
-                10,
+                "Don Quijote de la Mancha",
+                "Miguel de Cervantes",
+                "1605-01-16",
+                "9788420412145",
+                3,
                 dt.today().date(),
                 dt.today().date(),
             ),
@@ -86,16 +86,16 @@ class BooksService:
         """
         id = len(self.books) + 1
         if len(isbn) != 10:
-            print("❌❌❌ ISBN must be 10 characters long ❌❌❌")
+            print("❌❌❌ El ISBN debe tener 10 caracteres ❌❌❌")
             return None
         if len(quantity) == 0:
-            print("❌❌❌ Quantity must be greater than 0 ❌❌❌")
+            print("❌❌❌ La cantidad debe ser mayor que 0 ❌❌❌")
             return None
         if title.strip() == "":
-            print("❌❌❌ Title must be greater than 0 ❌❌❌")
+            print("❌❌❌ El título no puede estar vacío ❌❌❌")
             return None
         if author.strip() == "":
-            print("❌❌❌ Author must be greater than 0 ❌❌❌")
+            print("❌❌❌ El autor no puede estar vacío ❌❌❌")
             return None
         
         book = Book(
@@ -145,7 +145,7 @@ class BooksService:
         Returns:
             Book or None: El objeto libro eliminado si fue encontrado, None si no existe.
         """
-        print(f"Deleting book {id}...")
+        print(f"Eliminando libro {id}...")
         for book in self.books:
             if book.id == id:
                 self.books.remove(book)
@@ -164,7 +164,7 @@ class BooksService:
         Returns:
             Book or None: El objeto libro actualizado si fue encontrado, None si no existe.
         """
-        print(f"Decrementing quantity of book {id}...")
+        print(f"Disminuyendo cantidad del libro {id}...")
         for book in self.books:
             print(book.id == id)
             if book.id == id:

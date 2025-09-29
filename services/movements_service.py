@@ -59,23 +59,23 @@ class MovementsService():
         
         book = self.books_service.get_book_by_id(book_id)
         if book is None:
-            print("❌❌❌ Book not found ❌❌❌")
+            print("❌❌❌ Libro no encontrado ❌❌❌")
             return None
         if book.quantity == 0:
-            print("❌❌❌ Book is out of stock ❌❌❌")
+            print("❌❌❌ El libro está agotado ❌❌❌")
             return None
         
         if self.check_movement_by_book_id(book_id, student_identification):
-            print("❌❌❌ Book is already borrowed ❌❌❌")
+            print("❌❌❌ El libro ya está prestado ❌❌❌")
             return None
         
         movement = Movement(id, book_id, student_name, student_identification, dt.today().date(), return_date, False, dt.today().date(), dt.today().date())
         if movement:
             uptaded_book = self.books_service.decrement_quantity(book_id)
             if uptaded_book:
-                print(f"New stock of book {book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
+                print(f"Nuevo stock del libro {book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
             else:
-                print(f"Failed to decrement quantity of book {book_id}")
+                print(f"Error al disminuir la cantidad del libro {book_id}")
                 return None
         self.movements.append(movement)
         return movement
@@ -99,19 +99,19 @@ class MovementsService():
         for movement in self.movements:
             if movement.id == id:
                 if not self.check_movement_by_book_id(movement.book_id, movement.student_identification):
-                    print("❌❌❌ Book is not borrowed ❌❌❌")
+                    print("❌❌❌ El libro no está prestado ❌❌❌")
                     return None
                 movement.returned = True
                 movement.return_date = dt.today().date()
                 
                 uptaded_book = self.books_service.increment_quantity(movement.book_id)
                 if uptaded_book:
-                    print(f"New stock of book {movement.book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
+                    print(f"Nuevo stock del libro {movement.book_id} - {uptaded_book.title}: {uptaded_book.quantity}")
                 else:
-                    print(f"Failed to increment quantity of book {movement.book_id}")
+                    print(f"Error al incrementar la cantidad del libro {movement.book_id}")
                     return None
                 return movement
-        print("❌❌❌ Movement not found ❌❌❌")
+        print("❌❌❌ Movimiento no encontrado ❌❌❌")
         return None
     
     def get_all_movements(self):
@@ -142,16 +142,16 @@ class MovementsService():
             bool: True si todos los campos son válidos, False en caso contrario.
         """
         if student_name == "":
-            print("❌❌❌ Student name is required ❌❌❌")
+            print("❌❌❌ El nombre del estudiante es requerido ❌❌❌")
             return False
         if student_identification == "":
-            print("❌❌❌ Student identification is required ❌❌❌")
+            print("❌❌❌ La identificación del estudiante es requerida ❌❌❌")
             return False
         if len(student_identification) != 10:
-            print("❌❌❌ Student identification must be 10 characters long ❌❌❌")
+            print("❌❌❌ La identificación del estudiante debe tener 10 caracteres ❌❌❌")
             return False
         if return_date == "":
-            print("❌❌❌ Return date is required ❌❌❌")
+            print("❌❌❌ La fecha de devolución es requerida ❌❌❌")
             return False
         return True
     
@@ -171,10 +171,10 @@ class MovementsService():
         Returns:
             bool: True si el libro está prestado al estudiante, False en caso contrario.
         """
-        print(f"Checking if book {book_id} is borrowed...")
+        print(f"Verificando si el libro {book_id} está prestado...")
         for movement in self.movements:
-            print(f"Movement {movement.id} - Book ID: {movement.book_id} - Returned: {movement.returned}")
+            print(f"Movimiento {movement.id} - ID del Libro: {movement.book_id} - Devuelto: {movement.returned}")
             if movement.book_id == book_id and not movement.returned and movement.student_identification == student_identification:
-                print(f"Book {book_id} is borrowed")
+                print(f"El libro {book_id} está prestado")
                 return True
         return False

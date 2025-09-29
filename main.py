@@ -25,8 +25,8 @@ def login():
     Returns:
         User or None: El objeto usuario si las credenciales son válidas, None en caso contrario.
     """
-    email = input("Enter your email: ")
-    password = input("Enter your password: ")
+    email = input("Ingresa tu email: ")
+    password = input("Ingresa tu contraseña: ")
     user = users_service.login(email, password)
     return user
 
@@ -43,14 +43,14 @@ def add_user():
     Returns:
         User or None: El objeto usuario creado si fue exitoso, None si falló.
     """
-    name = input("Enter the name of the user: ")
-    email = input("Enter the email of the user: ")
-    password = input("Enter the password of the user: ")
+    name = input("Ingresa el nombre del usuario: ")
+    email = input("Ingresa el email del usuario: ")
+    password = input("Ingresa la contraseña del usuario: ")
     user = users_service.add_user(email, password, name)
     if user:
-        print(f"User {user.name} added successfully 🎉")
+        print(f"Usuario {user.name} agregado exitosamente 🎉")
     else:
-        print("Failed to add user ❌")
+        print("Error al agregar usuario ❌")
     return user
 
 
@@ -74,12 +74,12 @@ def delete_user():
     Returns:
         User or None: El objeto usuario eliminado si fue exitoso, None si no se encontró.
     """
-    id = int(input("Enter the id of the user: "))
+    id = int(input("Ingresa el ID del usuario: "))
     user = users_service.delete_user(id)
     if user:
-        print(f"User {user.name} deleted successfully 🎉")
+        print(f"Usuario {user.name} eliminado exitosamente 🎉")
     else:
-        print("Failed to delete user ❌")
+        print("Error al eliminar usuario ❌")
     return user
 
 
@@ -100,16 +100,16 @@ def add_book():
     Returns:
         Book or None: El objeto libro creado si fue exitoso, None si falló.
     """
-    title = input("Enter the title of the book: ")
+    title = input("Ingresa el título del libro: ")
     author = input("Enter the author of the book: ")
-    published_date = input("Enter the published date of the book: ")
-    isbn = input("Enter the isbn of the book: ")
-    quantity = input("Enter the quantity of the book: ")
+    published_date = input("Ingresa la fecha de publicación del libro: ")
+    isbn = input("Ingresa el ISBN del libro: ")
+    quantity = input("Ingresa la cantidad disponible del libro: ")
     book = books_service.add_book(title, author, published_date, isbn, quantity)
     if book:
-        print(f"Book {book.title} added successfully 🎉")
+        print(f"Libro {book.title} agregado exitosamente 🎉")
     else:
-        print("Failed to add book")
+        print("Error al agregar libro")
     return book
 
 
@@ -123,7 +123,7 @@ def get_all_books():
     books = books_service.get_all_books()
     for book in books:
         print(
-            f"ID: {book.id} - Title: {book.title} - Author: {book.author} - Published Date: {book.published_date} - ISBN: {book.isbn} - Quantity: {book.quantity} - Created At: {book.created_at}"
+            f"ID: {book.id} - Título: {book.title} - Autor: {book.author} - Fecha de Publicación: {book.published_date} - ISBN: {book.isbn} - Cantidad: {book.quantity} - Fecha de Creación: {book.created_at}"
         )
     return books
 
@@ -140,12 +140,12 @@ def delete_book():
     print("--------------------------------")
     get_all_books()
     print("--------------------------------")
-    id = int(input("Enter the id of the book: "))
+    id = int(input("Ingresa el ID del libro: "))
     book = books_service.delete_book(id)
     if book:
-        print(f"Book {book.title} deleted successfully 🎉")
+        print(f"Libro {book.title} eliminado exitosamente 🎉")
     else:
-        print("Failed to delete book")
+        print("Error al eliminar libro")
     return book
 
 
@@ -168,17 +168,17 @@ def add_movement():
     print("--------------------------------")
     get_all_books()
     print("--------------------------------")
-    book_id = int(input("Enter the id of the book: "))
-    student_name = input("Enter the name of the student: ")
-    student_identification = input("Enter the identification of the student: ")
-    return_date = input("Enter the date of the return (YYYY-MM-DD): ")
+    book_id = int(input("Ingresa el ID del libro: "))
+    student_name = input("Ingresa el nombre del estudiante: ")
+    student_identification = input("Ingresa la identificación del estudiante: ")
+    return_date = input("Ingresa la fecha de devolución (YYYY-MM-DD): ")
     movement = movements_service.add_movement(
         book_id, student_name, student_identification, return_date
     )
     if movement:
-        print(f"Movement {movement.id} added successfully 🎉")
+        print(f"Movimiento {movement.id} agregado exitosamente 🎉")
     else:
-        print("Failed to add movement")
+        print("Error al agregar movimiento")
     return movement
 
 
@@ -192,7 +192,7 @@ def get_all_movements():
     movements = movements_service.get_all_movements()
     for movement in movements:
         print(
-            f"ID: {movement.id} - Book ID: {movement.book_id} - Student Name: {movement.student_name} - Student Identification: {movement.student_identification} - Loan Date: {movement.loan_date} - Return Date: {movement.return_date} - Returned: {'Yes' if movement.returned  else 'No'} - Created At: {movement.created_at} - Updated At: {movement.updated_at}"
+            f"ID: {movement.id} - ID del Libro: {movement.book_id} - Nombre del Estudiante: {movement.student_name} - Identificación del Estudiante: {movement.student_identification} - Fecha de Préstamo: {movement.loan_date} - Fecha de Devolución: {movement.return_date} - Devuelto: {'Sí' if movement.returned else 'No'} - Creado el: {movement.created_at} - Actualizado el: {movement.updated_at}"
         )
     return movements
 
@@ -210,12 +210,12 @@ def return_movement():
     print("--------------------------------")
     get_all_movements()
     print("--------------------------------")
-    id = int(input("Enter the id of the movement: "))
+    id = int(input("Ingresa el ID del movimiento: "))
     movement = movements_service.return_movement(id)
     if movement:
-        print(f"Book returned successfully 🎉")
+        print(f"Libro devuelto exitosamente 🎉")
     else:
-        print("Failed to return movement")
+        print("Error al devolver movimiento")
     return movement
 
 
@@ -233,26 +233,26 @@ def admin_menu():
     """
     while True:
         print("--------------------------------")
-        print("Admin Menu")
+        print("Menú de Administrador")
         print("--------------------------------")
-        print("USERS")
-        print("1. Add User")
-        print("2. Get All Users")
-        print("3. Delete User")
+        print("USUARIOS")
+        print("1. Agregar Usuario")
+        print("2. Ver Todos los Usuarios")
+        print("3. Eliminar Usuario")
         print("--------------------------------")
-        print("BOOKS")
-        print("4. Add Book")
-        print("5. Get All Books")
-        print("6. Delete Book")
+        print("LIBROS")
+        print("4. Agregar Libro")
+        print("5. Ver Todos los Libros")
+        print("6. Eliminar Libro")
         print("--------------------------------")
-        print("MOVEMENTS")
-        print("7. Borrow a book")
-        print("8. Get All Movements")
-        print("9. Return Book")
+        print("MOVIMIENTOS")
+        print("7. Prestar un libro")
+        print("8. Ver Todos los Movimientos")
+        print("9. Devolver Libro")
         print("--------------------------------")
-        print("EXIT")
-        print("10. Exit")
-        option = input("Enter an option: ")
+        print("SALIR")
+        print("10. Salir")
+        option = input("Ingresa una opción: ")
 
         if option == "1":
             add_user()
@@ -275,7 +275,7 @@ def admin_menu():
         elif option == "10":
             break
         else:
-            print("Invalid option")
+            print("Opción inválida")
 
 
 def menu():
@@ -291,24 +291,24 @@ def menu():
     """
     while True:
         print("--------------------------------")
-        print("Library Management System")
+        print("Sistema de Gestión de Biblioteca")
         print("--------------------------------")
-        print("1. Login")
-        print("2. Exit")
-        option = input("Enter an option: ")
+        print("1. Iniciar Sesión")
+        print("2. Salir")
+        option = input("Ingresa una opción: ")
         if option == "1":
-            print("Logging in...")
+            print("Iniciando sesión...")
             user = login()
             if user:
-                print(f"Welcome {user.name}")
+                print(f"Bienvenido {user.name}")
                 admin_menu()
             else:
-                print("Invalid email or password")
+                print("Email o contraseña inválidos")
         elif option == "2":
-            print("Exiting...")
+            print("Saliendo...")
             break
         else:
-            print("Invalid option")
+            print("Opción inválida")
 
 
 if __name__ == "__main__":
