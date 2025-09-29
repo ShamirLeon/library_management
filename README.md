@@ -97,9 +97,9 @@ El sistema incluye 3 libros predeterminados:
 
 | ID | Título | Autor | ISBN | Cantidad |
 |----|--------|-------|------|----------|
-| 1 | Book 1 | Author 1 | 1234567890 | 3 |
-| 2 | Book 2 | Author 2 | 1234567890 | 10 |
-| 3 | Book 3 | Author 3 | 1234567890 | 10 |
+| 1 | Cien años de soledad | Gabriel García Márquez | 9780307474728 | 5 |
+| 2 | 1984 | George Orwell | 9780451524935 | 4 |
+| 3 | Don Quijote de la Mancha | Miguel de Cervantes | 9788420412145 | 3 |
 
 ### **🧪 Casos de Prueba**
 
