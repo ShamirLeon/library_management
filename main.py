@@ -8,6 +8,7 @@ Permite a los usuarios autenticarse y realizar operaciones CRUD sobre usuarios, 
 from services.users_service import UsersService
 from services.books_service import BooksService
 from services.movements_service import MovementsService
+from getpass import getpass
 
 # Initialize services
 users_service = UsersService()
@@ -45,7 +46,7 @@ def add_user():
     """
     name = input("Ingresa el nombre del usuario: ")
     email = input("Ingresa el email del usuario: ")
-    password = input("Ingresa la contraseña del usuario: ")
+    password = getpass("Ingresa la contraseña del usuario: ")
     user = users_service.add_user(email, password, name)
     if user:
         print(f"Usuario {user.name} agregado exitosamente 🎉")
