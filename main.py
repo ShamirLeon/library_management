@@ -108,7 +108,7 @@ def add_book():
     quantity = input("Ingresa la cantidad disponible del libro: ")
     book = books_service.add_book(title, author, published_date, isbn, quantity)
     if book:
-        print(f"Libro {book.title} agregado exitosamente 🎉")
+        print(f"Libro {book.title} agregado exitosamente 🎉✅✅")
     else:
         print("Error al agregar libro")
     return book
