@@ -7,6 +7,7 @@ de libros de la biblioteca, incluyendo operaciones CRUD y control de inventario.
 
 from models.books import Book
 from datetime import datetime as dt
+from services.persistencia_service import ServicioPersistencia
 
 
 class BooksService:
@@ -23,45 +24,74 @@ class BooksService:
     
     def __init__(self):
         """
-        Inicializa el servicio de libros con un catálogo predeterminado.
-        
-        Crea tres libros de ejemplo para demostración:
-        - Book 1: Author 1 (3 ejemplares)
-        - Book 2: Author 2 (10 ejemplares)  
-        - Book 3: Author 3 (10 ejemplares)
+        Inicializa el servicio de libros cargando desde archivo JSON.
+        Si no existen datos, crea libros de ejemplo por defecto.
         """
-        self.books = [
-            Book(
-                1,
-                "Cien años de soledad",
-                "Gabriel García Márquez",
-                "1967-05-30",
-                "9780307474728",
-                5,
-                dt.today().date(),
-                dt.today().date(),
-            ),
-            Book(
-                2,
-                "1984",
-                "George Orwell",
-                "1949-06-08",
-                "9780451524935",
-                4,
-                dt.today().date(),
-                dt.today().date(),
-            ),
-            Book(
-                3,
-                "Don Quijote de la Mancha",
-                "Miguel de Cervantes",
-                "1605-01-16",
-                "9788420412145",
-                3,
-                dt.today().date(),
-                dt.today().date(),
-            ),
-        ]
+        self.persistencia = ServicioPersistencia()
+        self.books = []
+        self._cargar_libros()
+        
+        # Si no hay libros, crear algunos por defecto
+        if not self.books:
+            self.books = [
+                Book(
+                    1,
+                    "Cien años de soledad",
+                    "Gabriel García Márquez",
+                    "1967-05-30",
+                    "9780307474728",
+                    5,
+                    dt.today().date(),
+                    dt.today().date(),
+                ),
+                Book(
+                    2,
+                    "1984",
+                    "George Orwell",
+                    "1949-06-08",
+                    "9780451524935",
+                    4,
+                    dt.today().date(),
+                    dt.today().date(),
+                ),
+                Book(
+                    3,
+                    "Don Quijote de la Mancha",
+                    "Miguel de Cervantes",
+                    "1605-01-16",
+                    "9788420412145",
+                    3,
+                    dt.today().date(),
+                    dt.today().date(),
+                ),
+            ]
+            self._guardar_libros()
+    
+    def _cargar_libros(self):
+        """
+        Carga libros desde archivo JSON y los convierte a objetos Book.
+        """
+        datos_libros = self.persistencia.cargar_libros()
+        self.books = []
+        
+        for datos in datos_libros:
+            libro = Book(
+                datos['id'],
+                datos['title'],
+                datos['author'],
+                datos['published_date'],
+                datos['isbn'],
+                datos['quantity'],
+                datos['created_at'],
+                datos['updated_at']
+            )
+            self.books.append(libro)
+    
+    def _guardar_libros(self):
+        """
+        Guarda la lista actual de libros en archivo JSON.
+        """
+        self.persistencia.guardar_libros(self.books)
 
     def add_book(self, title, author, published_date, isbn, quantity):
         """
@@ -109,6 +139,7 @@ class BooksService:
             dt.today().date(),
         )
         self.books.append(book)
+        self._guardar_libros()
         return book
 
     def get_all_books(self):
@@ -149,6 +180,7 @@ class BooksService:
         for book in self.books:
             if book.id == id:
                 self.books.remove(book)
+                self._guardar_libros()
                 return book
         return None
     
@@ -170,6 +202,7 @@ class BooksService:
             if book.id == id:
                 book.quantity -= 1
                 book.updated_at = dt.today().date()
+                self._guardar_libros()
                 return book
         return None
     
@@ -189,6 +222,19 @@ class BooksService:
             if book.id == id:
                 book.quantity += 1
                 book.updated_at = dt.today().date()
+                self._guardar_libros()
                 return book
         return None
+    
+    def obtener_libro_por_id(self, id):
+        """
+        Busca un libro por su ID (versión en español).
+        
+        Args:
+            id (int): Identificador único del libro.
+            
+        Returns:
+            Book or None: El objeto libro si fue encontrado, None si no existe.
+        """
+        return self.get_book_by_id(id)
 

@@ -135,6 +135,66 @@ El sistema incluye 3 libros predeterminados:
 - ✅ Prevención de préstamos sin stock
 
 ### **Persistencia de Datos**
-- 💾 **En Memoria**: Los datos se mantienen durante la ejecución
-- 🔄 **Reinicio**: Los datos se resetean al reiniciar la aplicación
-- 📊 **Estado**: Información de auditoría (fechas de creación/actualización)
+- Se implementó persistencia de datos para todos los servicios disponibles en la aplicación. Se almacenan en la carpeta `datos/` mediante archivos JSON.
+
+#  Documentación del Árbol de Categorías implementado 
+
+## Características Principales
+
+### Funcionalidades Clave
+
+1. **Estructura Jerárquica**: Organización en árbol con categorías padre e hijos
+2. **Clasificación Automática**: Sugerencias inteligentes basadas en título, autor y género
+3. **Búsqueda Avanzada**: Múltiples formas de buscar y filtrar libros
+4. **Estadísticas Detalladas**: Métricas completas del sistema de categorización
+5. **Gestión Dinámica**: Crear, modificar y eliminar categorías fácilmente
+
+### Estadísticas Disponibles
+
+#### Estadísticas Generales:
+- Total de categorías en el sistema
+- Categorías con libros vs. categorías vacías
+- Porcentaje de utilización del sistema
+- Categoría más popular
+- Total de libros categorizados
+
+#### Estadísticas por Categoría:
+- Libros directos en la categoría
+- Libros totales (incluyendo subcategorías)  
+- Número de subcategorías
+- Ruta completa en la jerarquía
+- Descripción de la categoría
+
+## Ejemplos de Uso
+
+### Categorizar un Libro Nuevo
+
+Al agregar un libro, el sistema automáticamente:
+1. Sugiere categorías
+2. Permite seleccionar una categoría sugerida
+3. Categoriza el libro inmediatamente
+
+
+## Ventajas del Sistema
+
+### Beneficios de Implementación
+
+1. **Organización Intuitiva**: Estructura familiar tipo explorador de archivos
+2. **Escalabilidad**: Fácil agregar nuevas categorías sin límites de profundidad
+3. **Búsqueda Eficiente**: Múltiples métodos de búsqueda y filtrado
+4. **Flexibilidad**: Libros pueden pertenecer a múltiples categorías
+5. **Mantenimiento Sencillo**: Operaciones CRUD completas
+
+
+## Arquitectura Técnica
+
+### Diseño del Árbol
+
+- **Estructura**: Árbol n-ario donde cada nodo puede tener múltiples hijos
+- **Navegación**: Búsqueda en profundidad (DFS) para recorridos
+- **Almacenamiento**: En memoria con referencias padre-hijo bidireccionales
+- **Eficiencia**: O(n) para búsquedas, O(1) para inserciones
+
+## ¿Por qué escogimos este tipo de árbol?
+
+- Escogimos este árbol ya que cumple con nuestros requisitos de una búsqueda eficiente en memoria y tiempo, nos permite tener complejidades algorítmicas ideales en casos de búsqueda e inserción.

@@ -8,12 +8,43 @@ Permite a los usuarios autenticarse y realizar operaciones CRUD sobre usuarios, 
 from services.users_service import UsersService
 from services.books_service import BooksService
 from services.movements_service import MovementsService
+from services.categorias_service import ServicioCategorias
+from services.persistencia_service import ServicioPersistencia
 from getpass import getpass
 
 # Initialize services
 users_service = UsersService()
 books_service = BooksService()
 movements_service = MovementsService(books_service)
+categorias_service = ServicioCategorias(books_service)
+persistencia_service = ServicioPersistencia()
+
+# Inicializar libros con categorías de ejemplo
+def inicializar_categorias_ejemplo():
+    """
+    Inicializa algunos libros con categorías de ejemplo para demostrar el sistema.
+    """
+    # Categorizar libros existentes
+    try:
+        # "Cien años de soledad" -> Ficción > Novela
+        categorias_service.asignar_libro_a_categoria(1, "Novela")
+        categorias_service.asignar_libro_a_categoria(1, "Ficción")
+        
+        # "1984" -> Ficción > Ciencia Ficción
+        categorias_service.asignar_libro_a_categoria(2, "Ciencia Ficción")
+        categorias_service.asignar_libro_a_categoria(2, "Ficción")
+        
+        # Si existe un tercer libro, categorizarlo manualmente
+        if len(books_service.get_all_books()) > 2:
+            libro_3 = books_service.get_all_books()[2]
+            # Categorizar en una categoría general por defecto
+            categorias_service.asignar_libro_a_categoria(libro_3.id, "No Ficción")
+    except:
+        # Si hay errores en la inicialización, continuar silenciosamente
+        pass
+
+# Inicializar categorías de ejemplo
+inicializar_categorias_ejemplo()
 
 # Functions
 """ Users """
@@ -102,13 +133,15 @@ def add_book():
         Book or None: El objeto libro creado si fue exitoso, None si falló.
     """
     title = input("Ingresa el título del libro: ")
-    author = input("Enter the author of the book: ")
+    author = input("Ingresa el autor del libro: ")
     published_date = input("Ingresa la fecha de publicación del libro: ")
     isbn = input("Ingresa el ISBN del libro: ")
     quantity = input("Ingresa la cantidad disponible del libro: ")
+    
     book = books_service.add_book(title, author, published_date, isbn, quantity)
     if book:
         print(f"Libro {book.title} agregado exitosamente 🎉✅✅")
+        print("📝 Puedes categorizar el libro en el menú de categorías.")
     else:
         print("Error al agregar libro")
     return book
@@ -150,7 +183,7 @@ def delete_book():
     return book
 
 
-""" Movements """
+""" Movimientos """
 
 
 def add_movement():
@@ -220,18 +253,438 @@ def return_movement():
     return movement
 
 
-# Display admin menu
+""" Categorías """
+
+
+def mostrar_estructura_categorias():
+    """
+    Muestra la estructura completa del árbol de categorías.
+    
+    Permite al usuario ver la organización jerárquica de las categorías
+    y la cantidad de libros en cada una.
+    """
+    print("\nESTRUCTURA DE CATEGORÍAS")
+    print("=" * 50)
+    estructura = categorias_service.mostrar_estructura_categorias()
+    print(estructura)
+    
+    # Mostrar resumen general
+    resumen = categorias_service.obtener_resumen_general()
+    print(f"\nRESUMEN GENERAL:")
+    print(f"   • Total de categorías: {resumen['total_categorias']}")
+    print(f"   • Categorías con libros: {resumen['categorias_con_libros']}")
+    print(f"   • Categorías vacías: {resumen['categorias_vacias']}")
+    print(f"   • Total de libros categorizados: {resumen['total_libros_categorizados']}")
+    print(f"   • Utilización: {resumen['porcentaje_categorias_utilizadas']}%")
+    if resumen['categoria_mas_poblada']['nombre']:
+        print(f"   • Categoría más popular: {resumen['categoria_mas_poblada']['nombre']} ({resumen['categoria_mas_poblada']['cantidad']} libros)")
+
+
+def crear_nueva_categoria():
+    """
+    Permite crear una nueva categoría en el sistema.
+    
+    Solicita el nombre de la categoría padre, el nombre de la nueva categoría
+    y opcionalmente una descripción.
+    """
+    print("CREAR NUEVA CATEGORÍA")
+    print("=" * 30)
+    
+    # Mostrar categorías disponibles
+    categorias_disponibles = categorias_service.listar_todas_las_categorias()
+    print("Categorías disponibles como padre:")
+    for i, categoria in enumerate(categorias_disponibles, 1):
+        print(f"   {i}. {categoria}")
+    
+    print("\nTambién puedes usar: 'Biblioteca General' como categoría principal")
+    
+    nombre_padre = input("\nIngresa el nombre de la categoría padre: ").strip()
+    nombre_categoria = input("Ingresa el nombre de la nueva categoría: ").strip()
+    descripcion = input("Ingresa una descripción (opcional): ").strip()
+    
+    resultado = categorias_service.crear_categoria(nombre_padre, nombre_categoria, descripcion)
+    
+    if resultado['exito']:
+        print(f"{resultado['mensaje']}")
+    else:
+        print(f"{resultado['mensaje']}")
+
+
+def asignar_libro_a_categoria():
+    """
+    Permite asignar un libro existente a una categoría.
+    
+    Muestra la lista de libros disponibles y categorías para facilitar la selección.
+    """
+    print("\nASIGNAR LIBRO A CATEGORÍA")
+    print("=" * 40)
+    
+    # Mostrar libros disponibles
+    print("Libros disponibles:")
+    libros = books_service.get_all_books()
+    if not libros:
+        print("❌ No hay libros disponibles en el catálogo.")
+        return
+    
+    for libro in libros:
+        # Mostrar categorías actuales del libro
+        categorias_actuales = categorias_service.buscar_categorias_de_libro(libro.id)
+        cats_str = ", ".join(categorias_actuales['categorias']) if categorias_actuales['categorias'] else "Sin categorizar"
+        print(f"   ID: {libro.id} - {libro.title} por {libro.author} (Categorías: {cats_str})")
+    
+    # Mostrar categorías disponibles
+    print("\nCategorías disponibles:")
+    categorias_disponibles = categorias_service.listar_todas_las_categorias()
+    for i, categoria in enumerate(categorias_disponibles, 1):
+        stats = categorias_service.obtener_estadisticas(categoria)
+        print(f"   {i}. {categoria} ({stats['libros_directos']} libros)")
+    
+    try:
+        id_libro = int(input("\nIngresa el ID del libro: "))
+        nombre_categoria = input("Ingresa el nombre de la categoría: ").strip()
+        
+        resultado = categorias_service.asignar_libro_a_categoria(id_libro, nombre_categoria)
+        
+        if resultado['exito']:
+            print(f"✅ {resultado['mensaje']}")
+        else:
+            print(f"❌ {resultado['mensaje']}")
+            
+    except ValueError:
+        print("❌ Por favor ingresa un ID de libro válido.")
+
+
+def ver_libros_por_categoria():
+    """
+    Muestra los libros pertenecientes a una categoría específica.
+    
+    Permite al usuario elegir si incluir subcategorías en la búsqueda.
+    """
+    print("\nVER LIBROS POR CATEGORÍA")
+    print("=" * 35)
+    
+    # Mostrar categorías disponibles con cantidad de libros
+    categorias_disponibles = categorias_service.listar_todas_las_categorias()
+    print("Categorías disponibles:")
+    for i, categoria in enumerate(categorias_disponibles, 1):
+        stats = categorias_service.obtener_estadisticas(categoria)
+        print(f"   {i}. {categoria} ({stats['libros_directos']} directos, {stats['libros_totales']} total)")
+    
+    nombre_categoria = input("\nIngresa el nombre de la categoría: ").strip()
+    incluir_subcategorias = input("¿Incluir subcategorías? (s/n): ").strip().lower() == 's'
+    
+    resultado = categorias_service.obtener_libros_por_categoria(nombre_categoria, incluir_subcategorias)
+    
+    if resultado['exito']:
+        print(f"\n{resultado['mensaje']}")
+        if resultado['libros']:
+            print("\n📚 Libros encontrados:")
+            for libro in resultado['libros']:
+                print(f"   • ID: {libro.id} - {libro.title} por {libro.author}")
+                print(f"     Publicado: {libro.published_date} | ISBN: {libro.isbn} | Cantidad: {libro.quantity}")
+        else:
+            print("No se encontraron libros en esta categoría.")
+    else:
+        print(f"❌ {resultado['mensaje']}")
+
+
+def buscar_libros_por_termino_categoria():
+    """
+    Busca libros en categorías que contengan un término específico.
+    
+    Útil para encontrar libros por tema sin conocer la categoría exacta.
+    """
+    print("\n BUSCAR POR TÉRMINO EN CATEGORÍAS")
+    print("=" * 40)
+    
+    termino = input("Ingresa el término a buscar en nombres de categorías: ").strip()
+    
+    if not termino:
+        print("Debes ingresar un término de búsqueda.")
+        return
+    
+    resultado = categorias_service.buscar_libros_por_termino_en_categorias(termino)
+    
+    print(f"\n🔍 {resultado['mensaje']}")
+    
+    if resultado['categorias_encontradas']:
+        print(f"\nCategorías que contienen '{termino}':")
+        for categoria in resultado['categorias_encontradas']:
+            print(f"   • {categoria}")
+        
+        if resultado['libros']:
+            print(f"\nLibros encontrados ({resultado['cantidad_libros']}):")
+            for libro in resultado['libros']:
+                categorias_libro = categorias_service.buscar_categorias_de_libro(libro.id)
+                cats_str = ", ".join(categorias_libro['categorias'])
+                print(f"   • {libro.title} por {libro.author} (en: {cats_str})")
+
+
+def ver_estadisticas_categoria():
+    """
+    Muestra estadísticas detalladas de una categoría específica o de todo el sistema.
+    """
+    print("\nESTADÍSTICAS DE CATEGORÍAS")
+    print("=" * 35)
+    
+    print("Opciones:")
+    print("1. Ver estadísticas de una categoría específica")
+    print("2. Ver estadísticas generales del sistema")
+    
+    opcion = input("Elige una opción (1-2): ").strip()
+    
+    if opcion == "1":
+        categorias_disponibles = categorias_service.listar_todas_las_categorias()
+        print("\nCategorías disponibles:")
+        for i, categoria in enumerate(categorias_disponibles, 1):
+            print(f"   {i}. {categoria}")
+        
+        nombre_categoria = input("\nIngresa el nombre de la categoría: ").strip()
+        stats = categorias_service.obtener_estadisticas(nombre_categoria)
+        
+        if stats:
+            print(f"\nEstadísticas de '{nombre_categoria}':")
+            print(f"   • Descripción: {stats['descripcion']}")
+            print(f"   • Ruta: {stats['ruta']}")
+            print(f"   • Libros directos: {stats['libros_directos']}")
+            print(f"   • Libros totales (incluyendo subcategorías): {stats['libros_totales']}")
+            print(f"   • Subcategorías: {stats['subcategorias']}")
+            if stats['nombres_subcategorias']:
+                print(f"   • Nombres de subcategorías: {', '.join(stats['nombres_subcategorias'])}")
+        else:
+            print(f"❌ La categoría '{nombre_categoria}' no existe.")
+    
+    elif opcion == "2":
+        resumen = categorias_service.obtener_resumen_general()
+        print(f"\nESTADÍSTICAS GENERALES DEL SISTEMA:")
+        print(f"   • Total de categorías: {resumen['total_categorias']}")
+        print(f"   • Categorías con libros: {resumen['categorias_con_libros']}")
+        print(f"   • Categorías vacías: {resumen['categorias_vacias']}")
+        print(f"   • Total de libros categorizados: {resumen['total_libros_categorizados']}")
+        print(f"   • Porcentaje de utilización: {resumen['porcentaje_categorias_utilizadas']}%")
+        
+        if resumen['categoria_mas_poblada']['nombre']:
+            print(f"   • Categoría más popular: {resumen['categoria_mas_poblada']['nombre']} con {resumen['categoria_mas_poblada']['cantidad']} libros")
+    else:
+        print("❌ Opción inválida.")
+
+
+def remover_libro_de_categoria():
+    """
+    Permite remover un libro de una categoría específica.
+    """
+    print("\nREMOVER LIBRO DE CATEGORÍA")
+    print("=" * 40)
+    
+    print("Libros categorizados:")
+    libros = books_service.get_all_books()
+    libros_categorizados = []
+    
+    for libro in libros:
+        categorias_libro = categorias_service.buscar_categorias_de_libro(libro.id)
+        if categorias_libro['categorias']:
+            libros_categorizados.append(libro)
+            cats_str = ", ".join(categorias_libro['categorias'])
+            print(f"   ID: {libro.id} - {libro.title} (Categorías: {cats_str})")
+    
+    if not libros_categorizados:
+        print("No hay libros categorizados en el sistema.")
+        return
+    
+    try:
+        id_libro = int(input("\nIngresa el ID del libro: "))
+        
+        # Mostrar categorías actuales del libro
+        categorias_actuales = categorias_service.buscar_categorias_de_libro(id_libro)
+        if not categorias_actuales['categorias']:
+            print("❌ Este libro no está categorizado.")
+            return
+        
+        print(f"\nCategorías actuales del libro:")
+        for i, categoria in enumerate(categorias_actuales['categorias'], 1):
+            print(f"   {i}. {categoria}")
+        
+        nombre_categoria = input("\nIngresa el nombre de la categoría de donde remover el libro: ").strip()
+        
+        resultado = categorias_service.remover_libro_de_categoria(id_libro, nombre_categoria)
+        
+        if resultado['exito']:
+            print(f"✅ {resultado['mensaje']}")
+        else:
+            print(f"❌ {resultado['mensaje']}")
+            
+    except ValueError:
+        print("❌ Por favor ingresa un ID de libro válido.")
+
+
+""" Gestión de Datos y Persistencia """
+
+
+def mostrar_estadisticas_datos():
+    """
+    Muestra estadísticas de los archivos de datos guardados.
+    """
+    print("\n📊 ESTADÍSTICAS DE DATOS GUARDADOS")
+    print("=" * 40)
+    
+    estadisticas = persistencia_service.obtener_estadisticas_archivos()
+    
+    print("📂 Estado de archivos de datos:")
+    for tipo, info in estadisticas.items():
+        estado = "✅ Existe" if info['existe'] else "❌ No existe"
+        cantidad = info.get('cantidad', info.get('cantidad_categorias', 0))
+        
+        if tipo == 'usuarios':
+            print(f"   👥 Usuarios: {estado} - {cantidad} registros")
+        elif tipo == 'libros':
+            print(f"   📚 Libros: {estado} - {cantidad} registros")
+        elif tipo == 'movimientos':
+            print(f"   🔄 Movimientos: {estado} - {cantidad} registros")
+        elif tipo == 'categorias_libros':
+            print(f"   🗂️  Categorías: {estado} - {cantidad} asignaciones")
+
+
+def crear_respaldo_completo():
+    """
+    Crea un respaldo completo de todos los datos del sistema.
+    """
+    print("\n💾 CREAR RESPALDO COMPLETO")
+    print("=" * 30)
+    
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nombre_respaldo = f"respaldo_{timestamp}.json"
+    
+    print(f"Creando respaldo: {nombre_respaldo}")
+    
+    exito = persistencia_service.exportar_todo(nombre_respaldo)
+    
+    if exito:
+        print("✅ Respaldo creado exitosamente")
+        print(f"📁 Ubicación: datos/{nombre_respaldo}")
+    else:
+        print("❌ Error al crear el respaldo")
+
+
+def mostrar_informacion_sistema():
+    """
+    Muestra información general del sistema y su estado.
+    """
+    print("\n🖥️ INFORMACIÓN DEL SISTEMA")
+    print("=" * 35)
+    
+    # Estadísticas generales
+    total_usuarios = len(users_service.get_all_users())
+    total_libros = len(books_service.get_all_books())
+    total_movimientos = len(movements_service.get_all_movements())
+    
+    # Movimientos activos (no devueltos)
+    movimientos_activos = sum(1 for m in movements_service.get_all_movements() if not m.returned)
+    
+    # Estadísticas de categorías
+    resumen_categorias = categorias_service.obtener_resumen_general()
+    
+    print("📊 Datos en memoria:")
+    print(f"   👥 Usuarios: {total_usuarios}")
+    print(f"   📚 Libros: {total_libros}")
+    print(f"   🔄 Movimientos: {total_movimientos}")
+    print(f"   📖 Préstamos activos: {movimientos_activos}")
+    print(f"   🗂️  Categorías utilizadas: {resumen_categorias['categorias_con_libros']}")
+    print(f"   📚 Libros categorizados: {resumen_categorias['total_libros_categorizados']}")
+    
+    print("\n💾 Estado de persistencia:")
+    estadisticas = persistencia_service.obtener_estadisticas_archivos()
+    archivos_existentes = sum(1 for info in estadisticas.values() if info['existe'])
+    print(f"   📁 Archivos de datos: {archivos_existentes}/4 existentes")
+    
+    if archivos_existentes > 0:
+        print("   ✅ La persistencia está funcionando")
+    else:
+        print("   ⚠️ No se han guardado datos aún")
+
+
+def menu_gestion_datos():
+    """
+    Menú para la gestión de datos y persistencia del sistema.
+    """
+    while True:
+        print("\n" + "=" * 45)
+        print("💾 GESTIÓN DE DATOS Y PERSISTENCIA 💾")
+        print("=" * 45)
+        print("📊 INFORMACIÓN")
+        print("1. Ver estadísticas de datos")
+        print("2. Ver información del sistema")
+        print("-" * 45)
+        print("💾 RESPALDOS")
+        print("3. Crear respaldo completo")
+        print("-" * 45)
+        print("🚪 NAVEGACIÓN")
+        print("4. Volver al menú principal")
+        
+        opcion = input("\nIngresa una opción (1-4): ").strip()
+        
+        if opcion == "1":
+            mostrar_estadisticas_datos()
+        elif opcion == "2":
+            mostrar_informacion_sistema()
+        elif opcion == "3":
+            crear_respaldo_completo()
+        elif opcion == "4":
+            break
+        else:
+            print("❌ Opción inválida. Por favor elige una opción del 1 al 4.")
+
+
+def menu_categorias():
+    """
+    Menú específico para la gestión de categorías.
+    
+    Proporciona todas las opciones relacionadas con la organización
+    temática del catálogo de libros.
+    """
+    while True:
+        print("\n" + "=" * 50)
+        print("🌳 GESTIÓN DE CATEGORÍAS DE LIBROS 🌳")
+        print("=" * 50)
+        print("📋 VISUALIZACIÓN")
+        print("1. Ver estructura de categorías")
+        print("2. Ver libros por categoría")
+        print("3. Buscar por término en categorías")
+        print("4. Ver estadísticas de categorías")
+        print("-" * 50)
+        print("📝 GESTIÓN")
+        print("5. Crear nueva categoría")
+        print("6. Asignar libro a categoría")
+        print("7. Remover libro de categoría")
+        print("-" * 50)
+        print("🚪 NAVEGACIÓN")
+        print("8. Volver al menú principal")
+        
+        opcion = input("\nIngresa una opción (1-8): ").strip()
+        
+        # Implementamos match-case para mejorar legibilidad y manejar opciones digitadas por el usuario.
+        match opcion:
+            case "1":
+                mostrar_estructura_categorias()
+            case "2":
+                ver_libros_por_categoria()
+            case "3":
+                buscar_libros_por_termino_categoria()
+            case "4":
+                ver_estadisticas_categoria()
+            case "5":
+                crear_nueva_categoria()
+            case "6":
+                asignar_libro_a_categoria()
+            case "7":
+                remover_libro_de_categoria()
+            case "8":
+                break
+            case _:
+                print("Opción inválida. Por favor elige una opción del 1 al 8.")
+
+
 def admin_menu():
-    """
-    Muestra el menú principal de administración del sistema.
-    
-    Permite al usuario autenticado realizar todas las operaciones disponibles:
-    - Gestión de usuarios (agregar, listar, eliminar)
-    - Gestión de libros (agregar, listar, eliminar)
-    - Gestión de movimientos (préstamos y devoluciones)
-    
-    El menú se ejecuta en un bucle hasta que el usuario elija salir.
-    """
     while True:
         print("--------------------------------")
         print("Menú de Administrador")
@@ -251,32 +704,43 @@ def admin_menu():
         print("8. Ver Todos los Movimientos")
         print("9. Devolver Libro")
         print("--------------------------------")
+        print("CATEGORÍAS")
+        print("10. Gestionar Categorías")
+        print("--------------------------------")
+        print("DATOS")
+        print("11. Gestión de Datos")
+        print("--------------------------------")
         print("SALIR")
-        print("10. Salir")
+        print("12. Salir")
         option = input("Ingresa una opción: ")
 
-        if option == "1":
-            add_user()
-        elif option == "2":
-            get_all_users()
-        elif option == "3":
-            delete_user()
-        elif option == "4":
-            add_book()
-        elif option == "5":
-            get_all_books()
-        elif option == "6":
-            delete_book()
-        elif option == "7":
-            add_movement()
-        elif option == "8":
-            get_all_movements()
-        elif option == "9":
-            return_movement()
-        elif option == "10":
-            break
-        else:
-            print("Opción inválida")
+        match option:
+            case "1":
+                add_user()
+            case "2":
+                get_all_users()
+            case "3":
+                delete_user()
+            case "4":
+                add_book()
+            case "5":
+                get_all_books()
+            case "6":
+                delete_book()
+            case "7":
+                add_movement()
+            case "8":
+                get_all_movements()
+            case "9":
+                return_movement()
+            case "10":
+                menu_categorias()
+            case "11":
+                menu_gestion_datos()
+            case "12":
+                break
+            case _:
+                print("Opción inválida")
 
 
 def menu():
