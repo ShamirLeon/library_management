@@ -62,26 +62,26 @@ Un sistema completo de gestión de biblioteca desarrollado en Python que permite
 3. Usa las credenciales predeterminadas (ver sección de datos de prueba)
 
 ### **Menú Principal**
-- **1. Login**: Iniciar sesión en el sistema
-- **2. Exit**: Salir de la aplicación
+- **1. Iniciar sesión**: Iniciar sesión en el sistema
+- **2. Salir**: Salir de la aplicación
 
 ### **Menú de Administración**
 Una vez autenticado, tendrás acceso a:
 
 #### **👥 Gestión de Usuarios**
-- **1. Add User**: Agregar nuevo usuario
-- **2. Get All Users**: Ver todos los usuarios
-- **3. Delete User**: Eliminar usuario
+- **1. Añadir usuario**: Agregar nuevo usuario
+- **2. Obtener todos los usuarios**: Ver todos los usuarios
+- **3. Eliminar usuario**: Eliminar usuario
 
 #### **📖 Gestión de Libros**
-- **4. Add Book**: Agregar nuevo libro
-- **5. Get All Books**: Ver catálogo completo
-- **6. Delete Book**: Eliminar libro
+- **4. Añadir libro**: Agregar nuevo libro
+- **5. Obtener todos los usuarios**: Ver catálogo completo
+- **6. Eliminar libro**: Eliminar libro
 
 #### **🔄 Gestión de Préstamos**
-- **7. Borrow a book**: Realizar préstamo
-- **8. Get All Movements**: Ver todos los préstamos
-- **9. Return Book**: Devolver libro
+- **7. Prestar un libro**: Realizar préstamo
+- **8. Obtener todos los movimientos**: Ver todos los préstamos
+- **9. Devolver un libro**: Devolver libro
 
 ## 🧪 Datos de Prueba Predeterminados
 
