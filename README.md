@@ -46,12 +46,18 @@ Un sistema completo de gestión de biblioteca desarrollado en Python que permite
 │   ├── 📄 __init__.py        # Configuración del paquete de modelos
 │   ├── 📄 users.py           # Modelo de Usuario
 │   ├── 📄 books.py           # Modelo de Libro
-│   └── 📄 movements.py       # Modelo de Movimiento (Préstamo)
-└── 📁 services/              # Lógica de negocio
-    ├── 📄 __init__.py        # Configuración del paquete de servicios
-    ├── 📄 users_service.py   # Servicio de gestión de usuarios
-    ├── 📄 books_service.py   # Servicio de gestión de libros
-    └── 📄 movements_service.py # Servicio de gestión de préstamos
+│   ├── 📄 movements.py       # Modelo de Movimiento (Préstamo)
+│   └── 📄 categorias.py      # Modelo de Árbol de Categorías
+├── 📁 services/              # Lógica de negocio
+│   ├── 📄 __init__.py        # Configuración del paquete de servicios
+│   ├── 📄 users_service.py   # Servicio de gestión de usuarios
+│   ├── 📄 books_service.py   # Servicio de gestión de libros
+│   ├── 📄 movements_service.py # Servicio de gestión de préstamos
+│   ├── 📄 categorias_service.py # Servicio de gestión de categorías
+│   └── 📄 persistencia_service.py # Servicio de persistencia de datos
+└── 📁 tests/                 # Tests unitarios
+    ├── 📄 __init__.py        # Inicialización del paquete de tests
+    └── 📄 test_categorias.py # Tests para nodos de categorías
 ```
 
 ## 🎮 Guía de Uso
@@ -136,6 +142,66 @@ El sistema incluye 3 libros predeterminados:
 
 ### **Persistencia de Datos**
 - Se implementó persistencia de datos para todos los servicios disponibles en la aplicación. Se almacenan en la carpeta `datos/` mediante archivos JSON.
+
+## 🧪 Tests
+
+### **Estructura de Tests**
+
+El proyecto incluye una suite de tests unitarios ubicada en la carpeta `tests/`. Los tests utilizan el framework `unittest` de Python para verificar el correcto funcionamiento de los componentes del sistema.
+
+### **Ejecutar Tests**
+
+Para ejecutar los tests, puedes usar cualquiera de los siguientes comandos:
+
+```bash
+# Opción 1: Ejecutar todos los tests usando unittest
+python3 -m unittest discover tests -v
+
+# Opción 2: Ejecutar un archivo de test específico
+python3 -m unittest tests.test_categorias -v
+
+# Opción 3: Ejecutar el archivo de test directamente
+python3 tests/test_categorias.py
+```
+
+### **Tests Disponibles**
+
+#### **Tests de Nodos de Categorías** (`test_categorias.py`)
+
+Los tests para los nodos de categorías verifican las funcionalidades principales de la clase `NodoCategoria`:
+
+1. **Test de Creación y Relación Padre-Hijo** (`test_creacion_nodo_y_relacion_padre_hijo`)
+   - ✅ Verifica la creación correcta de nodos con nombre y descripción
+   - ✅ Valida la relación padre-hijo entre nodos
+   - ✅ Comprueba que los hijos se agregan correctamente a la lista del padre
+   - ✅ Verifica que el atributo padre se establece en los nodos hijos
+   - ✅ Valida la construcción correcta de rutas en el árbol
+
+2. **Test de Gestión de Libros** (`test_gestion_libros_en_nodo`)
+   - ✅ Verifica la adición de libros a nodos
+   - ✅ Valida que no se pueden agregar libros duplicados
+   - ✅ Comprueba la eliminación correcta de libros
+   - ✅ Verifica el conteo de libros directos
+   - ✅ Valida el conteo total de libros incluyendo subcategorías
+   - ✅ Comprueba que los libros de subcategorías se incluyen en el conteo total
+
+### **Cobertura de Tests**
+
+Los tests actuales cubren:
+- ✅ Inicialización de nodos de categorías
+- ✅ Establecimiento de relaciones jerárquicas
+- ✅ Gestión completa de libros (agregar, remover, contar)
+- ✅ Búsqueda de categorías en el árbol
+- ✅ Obtención de rutas completas
+- ✅ Conteo de libros directos y totales
+
+### **Estructura de Carpetas de Tests**
+
+```
+📁 tests/
+├── 📄 __init__.py          # Inicialización del paquete de tests
+└── 📄 test_categorias.py   # Tests para nodos de categorías
+```
 
 #  Documentación del Árbol de Categorías implementado 
 
