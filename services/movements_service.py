@@ -9,6 +9,7 @@ y control de inventario automático.
 from models.movements import Movement
 from datetime import datetime as dt
 from services.books_service import BooksService
+from services.persistencia_service import ServicioPersistencia
 
 class MovementsService():
     """
@@ -25,13 +26,42 @@ class MovementsService():
     
     def __init__(self, books_service):
         """
-        Inicializa el servicio de movimientos.
+        Inicializa el servicio de movimientos cargando desde archivo JSON.
         
         Args:
             books_service (BooksService): Instancia del servicio de libros para integración.
         """
+        self.persistencia = ServicioPersistencia()
         self.movements = []
         self.books_service = books_service
+        self._cargar_movimientos()
+    
+    def _cargar_movimientos(self):
+        """
+        Carga movimientos desde archivo JSON y los convierte a objetos Movement.
+        """
+        datos_movimientos = self.persistencia.cargar_movimientos()
+        self.movements = []
+        
+        for datos in datos_movimientos:
+            movimiento = Movement(
+                datos['id'],
+                datos['book_id'],
+                datos['student_name'],
+                datos['student_identification'],
+                datos['loan_date'],
+                datos['return_date'],
+                datos['returned'],
+                datos['created_at'],
+                datos['updated_at']
+            )
+            self.movements.append(movimiento)
+    
+    def _guardar_movimientos(self):
+        """
+        Guarda la lista actual de movimientos en archivo JSON.
+        """
+        self.persistencia.guardar_movimientos(self.movements)
     
     def add_movement(self, book_id, student_name, student_identification, return_date):
         """
@@ -78,6 +108,7 @@ class MovementsService():
                 print(f"Error al disminuir la cantidad del libro {book_id}")
                 return None
         self.movements.append(movement)
+        self._guardar_movimientos()
         return movement
     
     def return_movement(self, id):
@@ -110,6 +141,8 @@ class MovementsService():
                 else:
                     print(f"Error al incrementar la cantidad del libro {movement.book_id}")
                     return None
+                
+                self._guardar_movimientos()
                 return movement
         print("❌❌❌ Movimiento no encontrado ❌❌❌")
         return None

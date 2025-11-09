@@ -7,6 +7,7 @@ del sistema de biblioteca, incluyendo operaciones CRUD y autenticación.
 
 from datetime import datetime as dt
 from models.users import User
+from services.persistencia_service import ServicioPersistencia
 
 class UsersService():
     """
@@ -22,13 +23,41 @@ class UsersService():
     
     def __init__(self):
         """
-        Inicializa el servicio de usuarios con un usuario administrador por defecto.
-        
-        Crea un usuario administrador predeterminado con las credenciales:
-        - Email: admin@example.com
-        - Password: 123456
+        Inicializa el servicio de usuarios cargando datos desde archivo JSON.
+        Si no existen datos, crea un usuario administrador por defecto.
         """
-        self.users = [User(1, "Admin", "admin@example.com", "123456", dt.today().date(), dt.today().date())]
+        self.persistencia = ServicioPersistencia()
+        self.users = []
+        self._cargar_usuarios()
+        
+        # Si no hay usuarios, crear administrador por defecto
+        if not self.users:
+            self.users = [User(1, "Admin", "admin@example.com", "123456", dt.today().date(), dt.today().date())]
+            self._guardar_usuarios()
+    
+    def _cargar_usuarios(self):
+        """
+        Carga usuarios desde archivo JSON y los convierte a objetos User.
+        """
+        datos_usuarios = self.persistencia.cargar_usuarios()
+        self.users = []
+        
+        for datos in datos_usuarios:
+            usuario = User(
+                datos['id'],
+                datos['name'],
+                datos['email'],
+                datos['password'],
+                datos['created_at'],
+                datos['updated_at']
+            )
+            self.users.append(usuario)
+    
+    def _guardar_usuarios(self):
+        """
+        Guarda la lista actual de usuarios en archivo JSON.
+        """
+        self.persistencia.guardar_usuarios(self.users)
     
     def add_user(self, email, password, name):
         """
@@ -61,6 +90,7 @@ class UsersService():
         
         user = User(id, name.strip(), email.strip(), password.strip(), dt.today().date(), dt.today().date())
         self.users.append(user)
+        self._guardar_usuarios()
         return user
 
     def get_all_users(self):
@@ -86,6 +116,7 @@ class UsersService():
         for user in self.users:
             if user.id == id:
                 self.users.remove(user)
+                self._guardar_usuarios()
                 return user
         return None
     
