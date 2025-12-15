@@ -10,12 +10,14 @@ from services.books_service import BooksService
 from services.movements_service import MovementsService
 from services.categorias_service import ServicioCategorias
 from services.persistencia_service import ServicioPersistencia
+from services.graph_service import GraphService
 from getpass import getpass
 
 # Initialize services
 users_service = UsersService()
 books_service = BooksService()
-movements_service = MovementsService(books_service)
+graph_service = GraphService()
+movements_service = MovementsService(books_service, graph_service)
 categorias_service = ServicioCategorias(books_service)
 persistencia_service = ServicioPersistencia()
 
@@ -517,6 +519,233 @@ def remover_libro_de_categoria():
         print("❌ Por favor ingresa un ID de libro válido.")
 
 
+""" Sistema de Recomendación con Grafos """
+def recomendar_libros_por_historial():
+    """
+    Recomienda libros basado en el historial de préstamos del usuario.
+    """
+    print("\n📚 RECOMENDACIONES POR HISTORIAL")
+    print("=" * 40)
+    
+    student_identification = input("Ingresa la identificación del estudiante (10 caracteres): ").strip()
+    
+    if len(student_identification) != 10:
+        print("❌ La identificación debe tener 10 caracteres.")
+        return
+    
+    libros = books_service.get_all_books()
+    recomendaciones = graph_service.recomendar_libros_por_historial(
+        student_identification, 
+        libros, 
+        limite=5
+    )
+    
+    if recomendaciones:
+        print(f"\n✅ {len(recomendaciones)} recomendaciones encontradas:")
+        for i, libro in enumerate(recomendaciones, 1):
+            print(f"   {i}. {libro.title} por {libro.author}")
+            print(f"      ISBN: {libro.isbn} | Cantidad disponible: {libro.quantity}")
+    else:
+        print("❌ No se encontraron recomendaciones. El usuario puede no tener historial de préstamos.")
+
+
+def recomendar_libros_por_usuarios_similares():
+    """
+    Recomienda libros basado en lo que han leído usuarios con gustos similares.
+    """
+    print("\n👥 RECOMENDACIONES POR USUARIOS SIMILARES")
+    print("=" * 45)
+    
+    student_identification = input("Ingresa la identificación del estudiante (10 caracteres): ").strip()
+    
+    if len(student_identification) != 10:
+        print("❌ La identificación debe tener 10 caracteres.")
+        return
+    
+    libros = books_service.get_all_books()
+    recomendaciones = graph_service.recomendar_libros_por_usuarios_similares(
+        student_identification,
+        libros,
+        limite=5
+    )
+    
+    if recomendaciones:
+        print(f"\n✅ {len(recomendaciones)} recomendaciones basadas en usuarios similares:")
+        for i, libro in enumerate(recomendaciones, 1):
+            print(f"   {i}. {libro.title} por {libro.author}")
+            print(f"      ISBN: {libro.isbn} | Cantidad disponible: {libro.quantity}")
+    else:
+        print("❌ No se encontraron recomendaciones. Puede que no haya usuarios similares.")
+
+
+def ver_usuarios_similares():
+    """
+    Muestra usuarios con gustos similares a un usuario dado.
+    """
+    print("\n👥 USUARIOS CON GUSTOS SIMILARES")
+    print("=" * 40)
+    
+    student_identification = input("Ingresa la identificación del estudiante (10 caracteres): ").strip()
+    
+    if len(student_identification) != 10:
+        print("❌ La identificación debe tener 10 caracteres.")
+        return
+    
+    usuarios_similares = graph_service.obtener_usuarios_similares(student_identification, limite=10)
+    
+    if usuarios_similares:
+        print(f"\n✅ {len(usuarios_similares)} usuarios con gustos similares encontrados:")
+        for i, (usuario_id, peso) in enumerate(usuarios_similares, 1):
+            print(f"   {i}. Usuario ID: {usuario_id} - Libros compartidos: {peso}")
+    else:
+        print("❌ No se encontraron usuarios similares.")
+
+
+def ver_popularidad_libros():
+    """
+    Muestra la popularidad de los libros según la cantidad de préstamos.
+    """
+    print("\n📊 POPULARIDAD DE LIBROS")
+    print("=" * 35)
+    
+    limite = input("¿Cuántos libros deseas ver? (por defecto 10): ").strip()
+    limite = int(limite) if limite.isdigit() else 10
+    
+    popularidad = graph_service.obtener_popularidad_libros(limite=limite)
+    
+    if popularidad:
+        print(f"\n📚 Top {len(popularidad)} libros más populares:")
+        for i, (book_id, cantidad_prestamos) in enumerate(popularidad, 1):
+            libro = books_service.get_book_by_id(book_id)
+            if libro:
+                print(f"   {i}. {libro.title} por {libro.author}")
+                print(f"      Préstamos realizados: {cantidad_prestamos}")
+            else:
+                print(f"   {i}. Libro ID {book_id} - Préstamos: {cantidad_prestamos}")
+    else:
+        print("❌ No hay datos de popularidad disponibles.")
+
+
+def ver_estadisticas_grafo():
+    """
+    Muestra estadísticas generales del grafo de recomendación.
+    """
+    print("\n📊 ESTADÍSTICAS DEL GRAFO")
+    print("=" * 35)
+    
+    stats = graph_service.obtener_estadisticas_grafo()
+    
+    print(f"\n📈 Estadísticas Generales:")
+    print(f"   • Total de usuarios en el grafo: {stats['total_usuarios']}")
+    print(f"   • Total de libros en el grafo: {stats['total_libros']}")
+    print(f"   • Total de préstamos registrados: {stats['total_prestamos']}")
+    print(f"   • Conexiones usuario-usuario: {stats['total_conexiones_usuario_usuario']}")
+    print(f"   • Promedio de libros por usuario: {stats['promedio_libros_por_usuario']:.2f}")
+    print(f"   • Promedio de usuarios por libro: {stats['promedio_usuarios_por_libro']:.2f}")
+
+
+def ver_relaciones_indirectas():
+    """
+    Analiza relaciones indirectas entre libros y usuarios.
+    """
+    print("\n🔗 RELACIONES INDIRECTAS")
+    print("=" * 35)
+    
+    student_identification = input("Ingresa la identificación del estudiante (10 caracteres): ").strip()
+    
+    if len(student_identification) != 10:
+        print("❌ La identificación debe tener 10 caracteres.")
+        return
+    
+    relaciones = graph_service.obtener_relaciones_indirectas(student_identification)
+    
+    print(f"\n📊 Análisis de relaciones indirectas:")
+    print(f"   • Libros prestados directamente: {relaciones['libros_directos']}")
+    print(f"   • Libros relacionados indirectamente: {relaciones['libros_indirectos']}")
+    print(f"   • Usuarios relacionados: {relaciones['usuarios_relacionados']}")
+    
+    if relaciones['libros_indirectos_ids']:
+        print(f"\n📚 Libros relacionados indirectamente:")
+        for book_id in relaciones['libros_indirectos_ids'][:10]:  # Mostrar máximo 10
+            libro = books_service.get_book_by_id(book_id)
+            if libro:
+                print(f"   • {libro.title} por {libro.author}")
+
+
+def ver_historial_usuario():
+    """
+    Muestra el historial de préstamos de un usuario.
+    """
+    print("\n📖 HISTORIAL DE PRÉSTAMOS")
+    print("=" * 35)
+    
+    student_identification = input("Ingresa la identificación del estudiante (10 caracteres): ").strip()
+    
+    if len(student_identification) != 10:
+        print("❌ La identificación debe tener 10 caracteres.")
+        return
+    
+    libros_prestados = graph_service.obtener_libros_prestados_por_usuario(student_identification)
+    
+    if libros_prestados:
+        print(f"\n✅ {len(libros_prestados)} libros prestados:")
+        for i, book_id in enumerate(libros_prestados, 1):
+            libro = books_service.get_book_by_id(book_id)
+            if libro:
+                print(f"   {i}. {libro.title} por {libro.author}")
+            else:
+                print(f"   {i}. Libro ID {book_id} (no encontrado)")
+    else:
+        print("❌ El usuario no tiene historial de préstamos.")
+
+
+def menu_recomendaciones():
+    """
+    Menú específico para el sistema de recomendación basado en grafos.
+    """
+    while True:
+        print("\n" + "=" * 50)
+        print("🔮 SISTEMA DE RECOMENDACIÓN DE LIBROS 🔮")
+        print("=" * 50)
+        print("📚 RECOMENDACIONES")
+        print("1. Recomendar libros por historial")
+        print("2. Recomendar libros por usuarios similares")
+        print("-" * 50)
+        print("👥 ANÁLISIS DE USUARIOS")
+        print("3. Ver usuarios con gustos similares")
+        print("4. Ver historial de préstamos de usuario")
+        print("-" * 50)
+        print("📊 ESTADÍSTICAS Y ANÁLISIS")
+        print("5. Ver popularidad de libros")
+        print("6. Ver estadísticas del grafo")
+        print("7. Ver relaciones indirectas")
+        print("-" * 50)
+        print("🚪 NAVEGACIÓN")
+        print("8. Volver al menú principal")
+        
+        opcion = input("\nIngresa una opción (1-8): ").strip()
+        
+        match opcion:
+            case "1":
+                recomendar_libros_por_historial()
+            case "2":
+                recomendar_libros_por_usuarios_similares()
+            case "3":
+                ver_usuarios_similares()
+            case "4":
+                ver_historial_usuario()
+            case "5":
+                ver_popularidad_libros()
+            case "6":
+                ver_estadisticas_grafo()
+            case "7":
+                ver_relaciones_indirectas()
+            case "8":
+                break
+            case _:
+                print("❌ Opción inválida. Por favor elige una opción del 1 al 8.")
+
+
 """ Gestión de Datos y Persistencia """
 
 
@@ -707,11 +936,17 @@ def admin_menu():
         print("CATEGORÍAS")
         print("10. Gestionar Categorías")
         print("--------------------------------")
+        print("CATEGORÍAS")
+        print("10. Gestionar Categorías")
+        print("--------------------------------")
+        print("RECOMENDACIONES")
+        print("11. Sistema de Recomendación")
+        print("--------------------------------")
         print("DATOS")
-        print("11. Gestión de Datos")
+        print("12. Gestión de Datos")
         print("--------------------------------")
         print("SALIR")
-        print("12. Salir")
+        print("13. Salir")
         option = input("Ingresa una opción: ")
 
         match option:
@@ -736,8 +971,10 @@ def admin_menu():
             case "10":
                 menu_categorias()
             case "11":
-                menu_gestion_datos()
+                menu_recomendaciones()
             case "12":
+                menu_gestion_datos()
+            case "13":
                 break
             case _:
                 print("Opción inválida")

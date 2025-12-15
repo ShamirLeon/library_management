@@ -24,21 +24,24 @@ class MovementsService():
         books_service (BooksService): Referencia al servicio de libros para control de inventario.
     """
     
-    def __init__(self, books_service):
+    def __init__(self, books_service, graph_service=None):
         """
         Inicializa el servicio de movimientos cargando desde archivo JSON.
         
         Args:
             books_service (BooksService): Instancia del servicio de libros para integración.
+            graph_service (GraphService, optional): Instancia del servicio de grafos para registrar préstamos.
         """
         self.persistencia = ServicioPersistencia()
         self.movements = []
         self.books_service = books_service
+        self.graph_service = graph_service
         self._cargar_movimientos()
     
     def _cargar_movimientos(self):
         """
         Carga movimientos desde archivo JSON y los convierte a objetos Movement.
+        También registra los préstamos en el grafo si está disponible.
         """
         datos_movimientos = self.persistencia.cargar_movimientos()
         self.movements = []
@@ -56,6 +59,13 @@ class MovementsService():
                 datos['updated_at']
             )
             self.movements.append(movimiento)
+            
+            # Registrar préstamo en el grafo si está disponible y no está devuelto
+            if self.graph_service and not datos['returned']:
+                self.graph_service.registrar_prestamo(
+                    datos['student_identification'],
+                    datos['book_id']
+                )
     
     def _guardar_movimientos(self):
         """
@@ -108,6 +118,11 @@ class MovementsService():
                 print(f"Error al disminuir la cantidad del libro {book_id}")
                 return None
         self.movements.append(movement)
+        
+        # Registrar préstamo en el grafo si está disponible
+        if self.graph_service:
+            self.graph_service.registrar_prestamo(student_identification, book_id)
+        
         self._guardar_movimientos()
         return movement
     

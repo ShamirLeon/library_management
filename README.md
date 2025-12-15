@@ -264,3 +264,106 @@ Al agregar un libro, el sistema automáticamente:
 ## ¿Por qué escogimos este tipo de árbol?
 
 - Escogimos este árbol ya que cumple con nuestros requisitos de una búsqueda eficiente en memoria y tiempo, nos permite tener complejidades algorítmicas ideales en casos de búsqueda e inserción.
+
+## Implementación de Grafos para Recomendación de Libros
+
+Como parte final del proyecto y con el objetivo de aplicar estructuras de datos avanzadas, se incorporó el uso de **grafos** para mejorar la eficiencia en las interacciones entre usuarios y libros, permitiendo la construcción de un **sistema de recomendación bibliotecaria**.
+
+Esta extensión complementa las estructuras ya implementadas (listas, árboles y diccionarios) y permite modelar relaciones complejas dentro del sistema.
+
+---
+
+## Requerimientos Adicionales Basados en Grafos
+
+Para justificar el uso de grafos, se definieron los siguientes requerimientos adicionales:
+
+### Nuevos Requerimientos Funcionales
+
+- Registrar las interacciones entre **usuarios y libros** a partir de los préstamos realizados.
+- Implementar un **sistema de recomendación de libros** basado en:
+  - Historial de préstamos del usuario.
+  - Libros prestados por usuarios con intereses similares.
+- Identificar **usuarios con gustos similares** a partir de libros compartidos.
+- Determinar la **popularidad de los libros** según la cantidad de préstamos.
+- Permitir el análisis de relaciones indirectas entre libros y usuarios.
+
+Estos requerimientos no pueden resolverse de manera eficiente únicamente con estructuras lineales o jerárquicas, por lo que el uso de grafos resulta adecuado.
+
+---
+
+## Tipos de Grafos Utilizados y Justificación
+
+### Grafo Bipartito Usuario–Libro
+
+**Características:**
+- Grafo no dirigido  
+- Grafo bipartito  
+- Representado mediante listas de adyacencia  
+
+**Descripción:**
+- El grafo está compuesto por dos conjuntos de nodos:
+  - **Usuarios**
+  - **Libros**
+- Las aristas representan un préstamo entre un usuario y un libro.
+- No existen relaciones directas usuario–usuario ni libro–libro en este nivel.
+
+**Justificación:**
+- Modela de forma natural el sistema de préstamos.
+- Permite registrar y consultar interacciones de manera eficiente.
+- Facilita la implementación de sistemas de recomendación.
+- Reduce la complejidad del modelo al separar claramente los tipos de nodos.
+
+---
+
+### Grafo Usuario–Usuario (Grafo Derivado)
+
+**Características:**
+- Grafo no dirigido  
+- Grafo ponderado  
+- Derivado del grafo bipartito  
+
+**Descripción:**
+- Dos usuarios están conectados si han prestado al menos un libro en común.
+- El peso de la arista representa la cantidad de libros compartidos.
+
+**Justificación:**
+- Permite identificar usuarios con intereses similares.
+- Es ideal para recomendaciones colaborativas del tipo:  
+  > “Usuarios con gustos similares también leyeron…”
+
+---
+
+## Diseño del Grafo y su Estructura
+
+### Diseño Conceptual
+
+#### Nodos:
+- **Usuarios**: Representan a los estudiantes registrados en el sistema.
+- **Libros**: Representan los libros disponibles en el catálogo.
+
+#### Aristas:
+- Una arista existe entre un usuario y un libro cuando se realiza un préstamo.
+
+Usuario1 ─── Libro1
+│ │
+│ └── Libro3
+│
+└── Libro2
+
+Usuario2 ─── Libro1
+│
+└── Libro4
+
+```python
+grafo = {
+    "Usuario1": ["Libro1", "Libro2", "Libro3"],
+    "Usuario2": ["Libro1", "Libro4"],
+    "Libro1": ["Usuario1", "Usuario2"],
+    "Libro2": ["Usuario1"],
+    "Libro3": ["Usuario1"],
+    "Libro4": ["Usuario2"]
+}
+```
+
+## Video de Presentación
+[Video Presentación](https://youtu.be/HxpXadjbb_c)
